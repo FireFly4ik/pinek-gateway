@@ -1,10 +1,11 @@
 package server
 
 import (
-	"fmt"
+	"context"
 	"gateway/internal/api/handler"
 	"gateway/internal/config"
 	"github.com/rs/zerolog/log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,7 @@ type APIServer struct {
 	Port    string
 	EnvConf *config.Config
 	Handler *handler.Handler
+	server  *http.Server
 }
 
 func (s *APIServer) Run() {
@@ -22,9 +24,24 @@ func (s *APIServer) Run() {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	if err := s.Handler.InitRoutes().Run(fmt.Sprintf(":%v", s.Port)); err != nil {
+	s.server = &http.Server{
+		Handler: s.Handler.InitRoutes(),
+		Addr:    ":" + s.EnvConf.Port,
+	}
+
+	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal().
 			Err(err).
 			Msg("failed to run API server")
 	}
+}
+
+func (s *APIServer) Shutdown(ctx context.Context) {
+	if err := s.server.Shutdown(ctx); err != nil {
+		log.Error().
+			Err(err).
+			Msg("error during API server shutdown")
+	}
+
+	log.Info().Msg("API server shutdown gracefully")
 }

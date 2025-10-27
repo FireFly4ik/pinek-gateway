@@ -1,18 +1,24 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	handlerPKG "gateway/internal/api/handler"
 	serverPKG "gateway/internal/api/server"
 	"gateway/internal/config"
 	"gateway/internal/consul"
 	"gateway/internal/logger"
 	"github.com/joho/godotenv"
-	"log"
+	"github.com/rs/zerolog/log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
-		log.Println("No .env file found")
+		fmt.Println("No .env file found")
 	}
 	envConf := config.NewEnvConfig()
 	config.PrintConfigWithHiddenSecrets(envConf)
@@ -28,7 +34,20 @@ func main() {
 		Handler: handler,
 	}
 
-	server.Run()
+	go server.Run()
 
-	//todo: graceful shutdown (cp, server)
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case s := <-sig:
+		log.Info().Msg(fmt.Sprintf("signal received: %s — starting graceful shutdown", s))
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	server.Shutdown(ctx)
+	consulProvider.DeregisterService()
+
+	log.Info().Msg("gateway shutdown gracefully")
 }

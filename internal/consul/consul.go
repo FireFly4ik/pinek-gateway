@@ -85,13 +85,13 @@ func (p *ConsulProvider) updateHealthCheck(envConf *config.Config) {
 	}
 }
 
-func (p *ConsulProvider) DeregisterService() error {
+func (p *ConsulProvider) DeregisterService() {
 	err := p.client.Agent().ServiceDeregister(p.name)
 	if err != nil {
-		return err
+		log.Err(err).Msg("failed to deregister service from Consul")
 	}
 
-	return nil
+	log.Info().Msg("service deregistered from Consul")
 }
 
 func (p *ConsulProvider) GetService(serviceName string) (string, error) {
