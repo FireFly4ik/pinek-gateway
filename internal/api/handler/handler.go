@@ -27,7 +27,7 @@ func NewHandler(envConf *config.Config, cp *consul.ConsulProvider) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	r := gin.Default()
-	r.Use(middleware.HeadersMiddleware())
+	r.Use(middleware.CorsMiddleware())
 
 	handler := r.Group("/api/v1")
 	{
