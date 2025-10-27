@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"fmt"
 	"gateway/internal/config"
 	"github.com/hashicorp/consul/api"
 	"github.com/rs/zerolog/log"
@@ -48,7 +49,7 @@ func (p *ConsulProvider) registerService(envConf *config.Config) error {
 		CheckID:                        envConf.Consul.CheckId,
 	}
 
-	port, _ := strconv.Atoi(envConf.Port[1:])
+	port, _ := strconv.Atoi(envConf.Port)
 
 	register := &api.AgentServiceRegistration{
 		Address: envConf.Address,
@@ -79,7 +80,7 @@ func (p *ConsulProvider) updateHealthCheck(envConf *config.Config) {
 	for {
 		err = p.client.Agent().UpdateTTL(p.checkId, "online", api.HealthPassing)
 		if err != nil {
-			log.Err(err).Msg("Failed to update Consul health check")
+			log.Error().Err(err).Msg("Failed to update Consul health check")
 		}
 		<-ticker.C
 	}
@@ -88,14 +89,27 @@ func (p *ConsulProvider) updateHealthCheck(envConf *config.Config) {
 func (p *ConsulProvider) DeregisterService() {
 	err := p.client.Agent().ServiceDeregister(p.name)
 	if err != nil {
-		log.Err(err).Msg("failed to deregister service from Consul")
+		log.Error().Err(err).Msg("failed to deregister service from Consul")
 	}
 
 	log.Info().Msg("service deregistered from Consul")
 }
 
 func (p *ConsulProvider) GetService(serviceName string) (string, error) {
-	//todo: implement
+	services, _, err := p.client.Health().Service(serviceName, "", true, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get service from Consul")
+		return "", err
+	}
 
-	return "", nil
+	if len(services) == 0 {
+		log.Info().Msg("no healthy instances found for service: " + serviceName)
+		return "", fmt.Errorf("no healthy instances of %s", serviceName)
+	}
+
+	service := services[0].Service
+	address := fmt.Sprintf("%s:%d", service.Address, service.Port)
+	log.Debug().Str("service_name", serviceName).Str("service_address", address).Msg("service address retrieved from Consul")
+
+	return address, nil
 }
