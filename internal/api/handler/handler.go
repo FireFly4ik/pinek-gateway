@@ -11,6 +11,8 @@ import (
 const (
 	DefaultRoute = "/"
 	//SwaggerRoute = "/swagger/*any"
+
+	RegisterRoute = "/register"
 )
 
 type Handler struct {
@@ -33,6 +35,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		handler.GET(DefaultRoute, h.Hello)
 		//handler.GET(SwaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+		authGroup := handler.Group("/auth")
+		{
+			authGroup.POST(RegisterRoute, h.Register)
+		}
 	}
 
 	return r
