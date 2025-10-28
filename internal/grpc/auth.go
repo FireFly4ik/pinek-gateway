@@ -44,7 +44,47 @@ func (c *AuthClient) RegisterRequest(ctx context.Context, login, password, usern
 		return "", "", "", fmt.Errorf("auth grpc client: RegisterRequest: %w", err)
 	}
 
-	return resp.RefreshToken, resp.AccessToken, resp.Message, nil
+	return resp.AccessToken, resp.AccessToken, resp.Message, nil
+}
+
+func (c *AuthClient) LoginRequest(ctx context.Context, login, password string) (string, string, string, error) {
+	resp, err := c.api.Login(ctx, &authProto.LoginRequest{
+		Login:    login,
+		Password: password,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to login user via Auth gRPC service")
+		return "", "", "", fmt.Errorf("auth grpc client: LoginRequest: %w", err)
+	}
+
+	return resp.AccessToken, resp.RefreshToken, resp.Message, nil
+}
+
+func (c *AuthClient) RefreshRequest(ctx context.Context, refreshToken string) (string, string, string, error) {
+	resp, err := c.api.Refresh(ctx, &authProto.RefreshRequest{
+		RefreshToken: refreshToken,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to refresh tokens via Auth gRPC service")
+		return "", "", "", fmt.Errorf("auth grpc client: RefreshRequest: %w", err)
+	}
+
+	return resp.AccessToken, resp.RefreshToken, resp.Message, nil
+}
+
+func (c *AuthClient) LogoutRequest(ctx context.Context, refreshToken string) (string, error) {
+	resp, err := c.api.Logout(ctx, &authProto.LogoutRequest{
+		RefreshToken: refreshToken,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to logout user via Auth gRPC service")
+		return "", fmt.Errorf("auth grpc client: LogoutRequest: %w", err)
+	}
+
+	return resp.Message, nil
 }
 
 func (c *AuthClient) Close() {

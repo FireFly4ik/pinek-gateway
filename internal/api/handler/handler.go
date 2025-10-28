@@ -13,6 +13,9 @@ const (
 	//SwaggerRoute = "/swagger/*any"
 
 	RegisterRoute = "/register"
+	LoginRoute    = "/login"
+	RefreshRoute  = "/refresh"
+	LogoutRoute   = "/logout"
 )
 
 type Handler struct {
@@ -39,6 +42,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authGroup := handler.Group("/auth")
 		{
 			authGroup.POST(RegisterRoute, h.Register)
+			authGroup.POST(LoginRoute, h.Login)
+			authGroup.POST(RefreshRoute, h.Refresh)
+			authGroup.POST(LogoutRoute, h.Logout)
 		}
 	}
 
