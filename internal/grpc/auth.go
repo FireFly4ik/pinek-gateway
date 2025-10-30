@@ -44,7 +44,7 @@ func (c *AuthClient) RegisterRequest(ctx context.Context, login, password, usern
 		return "", "", "", fmt.Errorf("auth grpc client: RegisterRequest: %w", err)
 	}
 
-	return resp.AccessToken, resp.AccessToken, resp.Message, nil
+	return resp.AccessToken, resp.RefreshToken, resp.Message, nil
 }
 
 func (c *AuthClient) LoginRequest(ctx context.Context, login, password string) (string, string, string, error) {
