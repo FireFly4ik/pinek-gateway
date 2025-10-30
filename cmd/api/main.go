@@ -8,6 +8,7 @@ import (
 	"gateway/internal/config"
 	"gateway/internal/consul"
 	"gateway/internal/logger"
+	"gateway/pkg/middleware"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -27,7 +28,9 @@ func main() {
 
 	consulProvider := consul.NewProvider(envConf)
 
-	handler := handlerPKG.NewHandler(envConf, consulProvider)
+	rsaPubKey := middleware.LoadRSAPublicKey()
+
+	handler := handlerPKG.NewHandler(envConf, consulProvider, rsaPubKey)
 	server := &serverPKG.APIServer{
 		Port:    envConf.Port,
 		EnvConf: envConf,

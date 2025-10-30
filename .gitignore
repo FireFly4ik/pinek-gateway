@@ -1,1 +1,2 @@
 .env
+pkg/middleware/rsa_public.pem

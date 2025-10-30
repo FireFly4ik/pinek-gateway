@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"crypto/rsa"
 	"gateway/internal/config"
 	"gateway/internal/consul"
 	"gateway/pkg/middleware"
@@ -21,12 +22,14 @@ const (
 type Handler struct {
 	envConf        *config.Config
 	consulProvider *consul.ConsulProvider
+	rsaPubKey      *rsa.PublicKey
 }
 
-func NewHandler(envConf *config.Config, cp *consul.ConsulProvider) *Handler {
+func NewHandler(envConf *config.Config, cp *consul.ConsulProvider, rsaPubKey *rsa.PublicKey) *Handler {
 	return &Handler{
 		envConf:        envConf,
 		consulProvider: cp,
+		rsaPubKey:      rsaPubKey,
 	}
 }
 
