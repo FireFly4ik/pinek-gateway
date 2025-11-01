@@ -58,11 +58,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		fileGroup := handler.Group("/file")
 		{
-			fileGroup.POST(UploadFileRoute, h.UploadFile).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
+			fileGroup.Use(middleware.JWTAccessMiddleware(h.rsaPubKey)).POST(UploadFileRoute, h.UploadFile)
 			fileGroup.GET(GetFileRoute, h.GetFile)
 			fileGroup.GET(GetFilesRoute, h.GetFiles)
-			fileGroup.DELETE(DeleteFileRoute, h.DeleteFile).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
-			fileGroup.DELETE(DeleteFilesRoute, h.DeleteFiles).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
+			fileGroup.Use(middleware.JWTAccessMiddleware(h.rsaPubKey)).DELETE(DeleteFileRoute, h.DeleteFile)
+			fileGroup.Use(middleware.JWTAccessMiddleware(h.rsaPubKey)).DELETE(DeleteFilesRoute, h.DeleteFiles)
 		}
 	}
 
