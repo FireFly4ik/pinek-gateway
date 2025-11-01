@@ -28,8 +28,8 @@ func NewProvider(envConf *config.Config) *ConsulProvider {
 		address: envConf.Consul.Address,
 		client:  client,
 		name:    envConf.Consul.Name,
-		checkId: envConf.Consul.CheckId + "(" + envConf.Port + ")",
-		id:      envConf.Consul.Name + "(" + envConf.Port + ")",
+		checkId: envConf.Consul.CheckId + "(" + envConf.Address + ":" + envConf.Port + ")",
+		id:      envConf.Consul.Name + "(" + envConf.Address + ":" + envConf.Port + ")",
 	}
 
 	err = cp.registerService(envConf)
@@ -48,7 +48,7 @@ func (p *ConsulProvider) registerService(envConf *config.Config) error {
 		DeregisterCriticalServiceAfter: envConf.Consul.DeregisterTTL,
 		TTL:                            envConf.Consul.RegisterTTL,
 		TLSSkipVerify:                  true,
-		CheckID:                        envConf.Consul.CheckId + "(" + envConf.Port + ")",
+		CheckID:                        envConf.Consul.CheckId + "(" + envConf.Address + ":" + envConf.Port + ")",
 	}
 
 	port, _ := strconv.Atoi(envConf.Port)
@@ -56,7 +56,7 @@ func (p *ConsulProvider) registerService(envConf *config.Config) error {
 	register := &api.AgentServiceRegistration{
 		Address: envConf.Address,
 		Port:    port,
-		ID:      envConf.Consul.Name + "(" + envConf.Port + ")",
+		ID:      envConf.Consul.Name + "(" + envConf.Address + ":" + envConf.Port + ")",
 		Name:    envConf.Consul.Name,
 		Tags:    []string{"gateway"},
 		Check:   check,
