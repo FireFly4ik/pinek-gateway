@@ -27,6 +27,7 @@ func main() {
 	logger.Setup(envConf.ProductionType)
 
 	consulProvider := consul.NewProvider(envConf)
+	log.Info().Msg("service registered in Consul")
 
 	rsaPubKey := middleware.LoadRSAPublicKey()
 

@@ -17,6 +17,12 @@ const (
 	LoginRoute    = "/login"
 	RefreshRoute  = "/refresh"
 	LogoutRoute   = "/logout"
+
+	UploadFileRoute  = "/upload"
+	GetFileRoute     = "/:id"
+	GetFilesRoute    = "/files"
+	DeleteFileRoute  = "/:id"
+	DeleteFilesRoute = "/files"
 )
 
 type Handler struct {
@@ -48,6 +54,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			authGroup.POST(LoginRoute, h.Login)
 			authGroup.POST(RefreshRoute, h.Refresh)
 			authGroup.POST(LogoutRoute, h.Logout)
+		}
+
+		fileGroup := handler.Group("/file")
+		{
+			fileGroup.POST(UploadFileRoute, h.UploadFile).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
+			fileGroup.GET(GetFileRoute, h.GetFile)
+			fileGroup.GET(GetFilesRoute, h.GetFiles)
+			fileGroup.DELETE(DeleteFileRoute, h.DeleteFile).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
+			fileGroup.DELETE(DeleteFilesRoute, h.DeleteFiles).Use(middleware.JWTAccessMiddleware(h.rsaPubKey))
 		}
 	}
 
