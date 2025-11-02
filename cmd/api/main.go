@@ -10,6 +10,7 @@ import (
 	"gateway/internal/logger"
 	"gateway/pkg/middleware"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
@@ -31,7 +32,16 @@ func main() {
 
 	rsaPubKey := middleware.LoadRSAPublicKey()
 
-	handler := handlerPKG.NewHandler(envConf, consulProvider, rsaPubKey)
+	prometheusRegistry := prometheus.NewRegistry()
+	metrics := middleware.NewMetrics(prometheusRegistry)
+	log.Info().Msg("prometheus metrics initialized")
+
+	handler := handlerPKG.NewHandler(
+		envConf,
+		consulProvider,
+		rsaPubKey,
+		metrics,
+	)
 	server := &serverPKG.APIServer{
 		Port:    envConf.Port,
 		EnvConf: envConf,

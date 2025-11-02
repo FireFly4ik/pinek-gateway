@@ -6,6 +6,7 @@ import (
 	"gateway/internal/consul"
 	"gateway/pkg/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
@@ -29,19 +30,29 @@ type Handler struct {
 	envConf        *config.Config
 	consulProvider *consul.ConsulProvider
 	rsaPubKey      *rsa.PublicKey
+	metrics        *middleware.Metrics
 }
 
-func NewHandler(envConf *config.Config, cp *consul.ConsulProvider, rsaPubKey *rsa.PublicKey) *Handler {
+func NewHandler(
+	envConf *config.Config,
+	cp *consul.ConsulProvider,
+	rsaPubKey *rsa.PublicKey,
+	metrics *middleware.Metrics,
+) *Handler {
 	return &Handler{
 		envConf:        envConf,
 		consulProvider: cp,
 		rsaPubKey:      rsaPubKey,
+		metrics:        metrics,
 	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	r := gin.Default()
+
 	r.Use(middleware.CorsMiddleware())
+	r.Use(middleware.MetricsMiddleware(h.metrics))
+	r.GET("/metrics", gin.WrapH(promhttp.HandlerFor(h.metrics.Reg, promhttp.HandlerOpts{})))
 
 	handler := r.Group("/api/v1")
 	{
