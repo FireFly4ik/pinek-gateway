@@ -1,9 +1,14 @@
 package middleware
 
 import (
+	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
+	"time"
 )
 
 // Metrics holds all Prometheus metrics for the gateway service.
@@ -19,8 +24,7 @@ type Metrics struct {
 	GRPCClientErrorsTotal     *prometheus.CounterVec
 
 	// Security Metrics
-	JWTValidationTotal      *prometheus.CounterVec
-	RateLimitThrottledTotal *prometheus.CounterVec
+	JWTValidationTotal *prometheus.CounterVec
 
 	Reg *prometheus.Registry
 }
@@ -85,19 +89,58 @@ func NewMetrics(reg *prometheus.Registry) *Metrics {
 			},
 			[]string{"result"}, // e.g., "success", "token_expired", "invalid_signature"
 		),
-		RateLimitThrottledTotal: promauto.With(reg).NewCounterVec(
-			prometheus.CounterOpts{
-				Name: "gateway_rate_limit_throttled_total",
-				Help: "Total number of throttled requests due to rate limiting.",
-			},
-			[]string{"client_ip", "path"},
-		),
 	}
 }
 
 func MetricsMiddleware(metrics *Metrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		metrics.HTTPRequestsTotal.WithLabelValues(c.Request.Method, c.FullPath(), "").Inc()
+		// Ignore the /metrics endpoint itself
+		if c.FullPath() == "/metrics" {
+			c.Next()
+			return
+		}
+
+		// Start timer
+		start := prometheus.NewTimer(metrics.HTTPRequestDuration.WithLabelValues(c.Request.Method, c.FullPath()))
+
 		c.Next()
+
+		start.ObserveDuration()
+
+		statusCode := c.Writer.Status()
+		metrics.HTTPRequestsTotal.WithLabelValues(c.Request.Method, c.FullPath(), fmt.Sprintf("%d", statusCode)).Inc()
+
+		if statusCode >= 400 {
+			metrics.HTTPErrorsTotal.WithLabelValues(c.Request.Method, c.FullPath(), fmt.Sprintf("%d", statusCode)).Inc()
+		}
 	}
+}
+
+func (m *Metrics) GRPCClientMetricsInterceptor(
+	ctx context.Context,
+	method string,
+	req, reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	start := time.Now()
+
+	service := cc.Target()
+
+	err := invoker(ctx, method, req, reply, cc, opts...)
+
+	duration := time.Since(start).Seconds()
+
+	st, _ := status.FromError(err)
+	grpcStatusCode := st.Code().String()
+
+	m.GRPCClientRequestsTotal.WithLabelValues(service, method).Inc()
+	m.GRPCClientRequestDuration.WithLabelValues(service, method).Observe(duration)
+
+	if err != nil {
+		m.GRPCClientErrorsTotal.WithLabelValues(service, method, grpcStatusCode).Inc()
+	}
+
+	return err
 }

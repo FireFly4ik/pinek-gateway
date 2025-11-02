@@ -43,7 +43,7 @@ func (h *Handler) UploadFile(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewFileClient(fileServiceAddress)
+	grpcConn, err := grpc.NewFileClient(fileServiceAddress, h.metrics)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to connect to file service")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to file service"})
@@ -78,7 +78,7 @@ func (h *Handler) GetFile(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewFileClient(fileServiceAddress)
+	grpcConn, err := grpc.NewFileClient(fileServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to file service"})
 		return
@@ -111,7 +111,7 @@ func (h *Handler) GetFiles(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewFileClient(fileServiceAddress)
+	grpcConn, err := grpc.NewFileClient(fileServiceAddress, h.metrics)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to connect to file service")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to file service"})
@@ -144,7 +144,7 @@ func (h *Handler) DeleteFile(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewFileClient(fileServiceAddress)
+	grpcConn, err := grpc.NewFileClient(fileServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to file service"})
 		return
@@ -177,7 +177,7 @@ func (h *Handler) DeleteFiles(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewFileClient(fileServiceAddress)
+	grpcConn, err := grpc.NewFileClient(fileServiceAddress, h.metrics)
 	if err != nil {
 		log.Error().Err(err).Msg("unable to connect to file service")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to file service"})

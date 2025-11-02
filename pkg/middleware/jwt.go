@@ -42,10 +42,11 @@ func LoadRSAPublicKey() *rsa.PublicKey {
 	return rsaPub
 }
 
-func JWTAccessMiddleware(rsaPubKey *rsa.PublicKey) gin.HandlerFunc {
+func JWTAccessMiddleware(rsaPubKey *rsa.PublicKey, metrics *Metrics) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtToken := c.GetHeader("Authorization")
 		if jwtToken == "" {
+			metrics.JWTValidationTotal.WithLabelValues("no_token").Inc()
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 			c.Abort()
 			return
@@ -59,6 +60,7 @@ func JWTAccessMiddleware(rsaPubKey *rsa.PublicKey) gin.HandlerFunc {
 			return rsaPubKey, nil
 		})
 		if err != nil {
+			metrics.JWTValidationTotal.WithLabelValues("invalid_claims").Inc()
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
 			c.Abort()
 			return
@@ -66,11 +68,13 @@ func JWTAccessMiddleware(rsaPubKey *rsa.PublicKey) gin.HandlerFunc {
 
 		claims, ok := token.Claims.(*AccessClaims)
 		if !ok || !token.Valid {
+			metrics.JWTValidationTotal.WithLabelValues("invalid_claims").Inc()
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
 			c.Abort()
 			return
 		}
 
+		metrics.JWTValidationTotal.WithLabelValues("success").Inc()
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)

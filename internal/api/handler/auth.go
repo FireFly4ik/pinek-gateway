@@ -21,7 +21,7 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewAuthClient(authServiceAddress)
+	grpcConn, err := grpc.NewAuthClient(authServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to auth service"})
 		return
@@ -57,7 +57,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewAuthClient(authServiceAddress)
+	grpcConn, err := grpc.NewAuthClient(authServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to auth service"})
 		return
@@ -93,7 +93,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewAuthClient(authServiceAddress)
+	grpcConn, err := grpc.NewAuthClient(authServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to auth service"})
 		return
@@ -129,7 +129,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		return
 	}
 
-	grpcConn, err := grpc.NewAuthClient(authServiceAddress)
+	grpcConn, err := grpc.NewAuthClient(authServiceAddress, h.metrics)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to connect to auth service"})
 		return

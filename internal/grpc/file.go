@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	fileProto "gateway/internal/proto/file"
+	"gateway/pkg/middleware"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,9 +15,10 @@ type FileClient struct {
 	cc  *grpc.ClientConn
 }
 
-func NewFileClient(addr string) (*FileClient, error) {
+func NewFileClient(addr string, metrics *middleware.Metrics) (*FileClient, error) {
 	cc, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(metrics.GRPCClientMetricsInterceptor),
 	)
 
 	if err != nil {

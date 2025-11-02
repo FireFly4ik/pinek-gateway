@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	authProto "gateway/internal/proto/auth"
+	"gateway/pkg/middleware"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,9 +15,10 @@ type AuthClient struct {
 	cc  *grpc.ClientConn
 }
 
-func NewAuthClient(addr string) (*AuthClient, error) {
+func NewAuthClient(addr string, metrics *middleware.Metrics) (*AuthClient, error) {
 	cc, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(metrics.GRPCClientMetricsInterceptor),
 	)
 
 	if err != nil {
