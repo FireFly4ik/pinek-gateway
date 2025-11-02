@@ -58,7 +58,7 @@ func (p *ConsulProvider) registerService(envConf *config.Config) error {
 		Port:    port,
 		ID:      envConf.Consul.Name + "(" + envConf.Address + ":" + envConf.Port + ")",
 		Name:    envConf.Consul.Name,
-		Tags:    []string{"gateway"},
+		Tags:    []string{"gateway", "metrics"},
 		Check:   check,
 	}
 
