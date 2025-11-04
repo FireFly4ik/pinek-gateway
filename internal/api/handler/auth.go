@@ -8,6 +8,17 @@ import (
 	"net/http"
 )
 
+// Register регистрация пользователя
+// @Summary Регистрация пользователя
+// @Description Регистрация пользователя с логином, паролем и именем пользователя
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param register body models.RegisterRequest true "Регистрационные данные"
+// @Success 200 {object} models.AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -44,6 +55,17 @@ func (h *Handler) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Login вход пользователя
+// @Summary Вход пользователя
+// @Description Аутентификация пользователя с логином и паролем
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body models.LoginRequest true "Данные для входа"
+// @Success 200 {object} models.AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth/login [post]
 func (h *Handler) Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -80,6 +102,17 @@ func (h *Handler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Login вход пользователя
+// @Summary Вход пользователя
+// @Description Аутентификация пользователя с логином и паролем
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body models.LoginRequest true "Данные для входа"
+// @Success 200 {object} models.AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth/refresh [post]
 func (h *Handler) Refresh(c *gin.Context) {
 	var req models.RefreshRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

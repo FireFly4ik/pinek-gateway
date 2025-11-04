@@ -15,6 +15,17 @@ const (
 	ChunkSize   = 1024 * 1024      // 1 MB
 )
 
+// UploadFile загрузка файла
+// @Summary Загрузка файла
+// @Description Загрузка файла на сервер
+// @Tags file
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "Файл для загрузки"
+// @Success 200 {object} models.UploadFileResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /file/upload [post]
 func (h *Handler) UploadFile(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
@@ -58,13 +69,25 @@ func (h *Handler) UploadFile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"file_id":  fileID,
-		"file_url": fileURL,
-		"message":  message,
-	})
+	resp := models.UploadFileResponse{
+		FileID:  fileID,
+		FileURL: fileURL,
+		Message: message,
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
+// GetFile получение файла по ID
+// @Summary Получение файла по ID
+// @Description Получение URL файла по его ID
+// @Tags file
+// @Accept json
+// @Produce json
+// @Param id path string true "ID файла"
+// @Success 200 {object} models.GetFileResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /file/{id} [get]
 func (h *Handler) GetFile(c *gin.Context) {
 	fileID := c.Param("id")
 	if fileID == "" {
@@ -91,11 +114,23 @@ func (h *Handler) GetFile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"file_url": fileURL,
-	})
+	resp := models.GetFileResponse{
+		FileURL: fileURL,
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
+// GetFiles получение нескольких файлов по ID
+// @Summary Получение нескольких файлов по ID
+// @Description Получение URL нескольких файлов по их ID
+// @Tags file
+// @Accept json
+// @Produce json
+// @Param file_ids body models.UploadDeleteFilesResponse true "IDs файлов"
+// @Success 200 {object} models.GetFilesResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /file/files [get]
 func (h *Handler) GetFiles(c *gin.Context) {
 	var req models.UploadDeleteFilesResponse
 
@@ -126,11 +161,23 @@ func (h *Handler) GetFiles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"file_urls": fileURLs,
-	})
+	resp := models.GetFilesResponse{
+		FileURLs: fileURLs,
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
+// GetFile получение файла по ID
+// @Summary Получение файла по ID
+// @Description Получение URL файла по его ID
+// @Tags file
+// @Accept json
+// @Produce json
+// @Param id path string true "ID файла"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /file/{id} [delete]
 func (h *Handler) DeleteFile(c *gin.Context) {
 	fileID := c.Param("id")
 	if fileID == "" {
@@ -162,6 +209,17 @@ func (h *Handler) DeleteFile(c *gin.Context) {
 	})
 }
 
+// DeleteFiles удаление нескольких файлов по ID
+// @Summary Удаление нескольких файлов по ID
+// @Description Удаление нескольких файлов по их ID
+// @Tags file
+// @Accept json
+// @Produce json
+// @Param file_ids body models.UploadDeleteFilesResponse true "IDs файлов"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /file/files [delete]
 func (h *Handler) DeleteFiles(c *gin.Context) {
 	var req models.UploadDeleteFilesResponse
 

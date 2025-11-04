@@ -8,11 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 const (
 	DefaultRoute = "/"
-	//SwaggerRoute = "/swagger/*any"
+	SwaggerRoute = "/swagger/*any"
 
 	RegisterRoute = "/register"
 	LoginRoute    = "/login"
@@ -57,7 +60,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	handler := r.Group("/api/v1")
 	{
 		handler.GET(DefaultRoute, h.Hello)
-		//handler.GET(SwaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
+		handler.GET(SwaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 		authGroup := handler.Group("/auth")
 		{

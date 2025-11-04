@@ -16,8 +16,24 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "gateway/docs"
 )
 
+// @title Pinek Gateway API
+// @version 1.0
+// @description API Gateway for Pinek services
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host 178.140.128.113:8080
+// @BasePath /api/v1/
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description JWT token in the format: Bearer {token}
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		fmt.Println("No .env file found")

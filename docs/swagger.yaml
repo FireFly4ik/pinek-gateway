@@ -1,0 +1,350 @@
+basePath: /api/v1/
+definitions:
+  models.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      message:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  models.GetFileResponse:
+    properties:
+      file_url:
+        type: string
+    type: object
+  models.GetFilesResponse:
+    properties:
+      file_urls:
+        items:
+          type: string
+        type: array
+    type: object
+  models.LoginRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  models.RegisterRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - login
+    - password
+    - username
+    type: object
+  models.UploadDeleteFilesResponse:
+    properties:
+      file_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.UploadFileResponse:
+    properties:
+      file_id:
+        type: string
+      file_url:
+        type: string
+      message:
+        type: string
+    type: object
+host: 178.140.128.113:8080
+info:
+  contact: {}
+  description: API Gateway for Pinek services
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Pinek Gateway API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя с логином и паролем
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вход пользователя
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя с логином и паролем
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вход пользователя
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация пользователя с логином, паролем и именем пользователя
+      parameters:
+      - description: Регистрационные данные
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /file/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Получение URL файла по его ID
+      parameters:
+      - description: ID файла
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение файла по ID
+      tags:
+      - file
+    get:
+      consumes:
+      - application/json
+      description: Получение URL файла по его ID
+      parameters:
+      - description: ID файла
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetFileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение файла по ID
+      tags:
+      - file
+  /file/files:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление нескольких файлов по их ID
+      parameters:
+      - description: IDs файлов
+        in: body
+        name: file_ids
+        required: true
+        schema:
+          $ref: '#/definitions/models.UploadDeleteFilesResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление нескольких файлов по ID
+      tags:
+      - file
+    get:
+      consumes:
+      - application/json
+      description: Получение URL нескольких файлов по их ID
+      parameters:
+      - description: IDs файлов
+        in: body
+        name: file_ids
+        required: true
+        schema:
+          $ref: '#/definitions/models.UploadDeleteFilesResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetFilesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение нескольких файлов по ID
+      tags:
+      - file
+  /file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загрузка файла на сервер
+      parameters:
+      - description: Файл для загрузки
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UploadFileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Загрузка файла
+      tags:
+      - file
+securityDefinitions:
+  ApiKeyAuth:
+    description: 'JWT token in the format: Bearer {token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
