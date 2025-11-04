@@ -31,6 +31,25 @@ definitions:
     - login
     - password
     type: object
+  models.LogoutRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  models.LogoutResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   models.RegisterRequest:
     properties:
       login:
@@ -104,6 +123,40 @@ paths:
       summary: Вход пользователя
       tags:
       - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Выход пользователя и аннулирование refresh токена
+      parameters:
+      - description: Данные для выхода
+        in: body
+        name: logout
+        required: true
+        schema:
+          $ref: '#/definitions/models.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LogoutResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Выход пользователя
+      tags:
+      - auth
   /auth/refresh:
     post:
       consumes:
@@ -115,7 +168,7 @@ paths:
         name: login
         required: true
         schema:
-          $ref: '#/definitions/models.LoginRequest'
+          $ref: '#/definitions/models.RefreshRequest'
       produces:
       - application/json
       responses:

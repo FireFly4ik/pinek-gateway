@@ -108,7 +108,7 @@ func (h *Handler) Login(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param login body models.LoginRequest true "Данные для входа"
+// @Param login body models.RefreshRequest true "Данные для входа"
 // @Success 200 {object} models.AuthResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -149,6 +149,17 @@ func (h *Handler) Refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Logout выход пользователя
+// @Summary Выход пользователя
+// @Description Выход пользователя и аннулирование refresh токена
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param logout body models.LogoutRequest true "Данные для выхода"
+// @Success 200 {object} models.LogoutResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /auth/logout [post]
 func (h *Handler) Logout(c *gin.Context) {
 	var req models.LogoutRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
