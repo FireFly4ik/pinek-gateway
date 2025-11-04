@@ -28,6 +28,9 @@ COPY --from=builder /gateway /app/gateway
 # Копируем .env файл. Приложение подхватит его при старте.
 COPY --from=builder /app/.env .
 
+# Копируем rsa_pub.pem файл
+COPY --from=builder /app/pkg/middleware/rsa_public.pem ./pkg/middleware/rsa_public.pem
+
 # Открываем порт, который приложение будет слушать внутри контейнера.
 # Это значение должно совпадать с переменной PORT в вашем .env файле.
 EXPOSE 8080
