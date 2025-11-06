@@ -621,7 +621,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "178.140.128.113:8080",
+	Host:             "82.202.138.76:8080",
 	BasePath:         "/api/v1/",
 	Schemes:          []string{},
 	Title:            "Pinek Gateway API",

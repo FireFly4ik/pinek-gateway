@@ -79,7 +79,7 @@ definitions:
       message:
         type: string
     type: object
-host: 178.140.128.113:8080
+host: 82.202.138.76:8080
 info:
   contact: {}
   description: API Gateway for Pinek services
