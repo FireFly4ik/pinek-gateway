@@ -34,7 +34,7 @@ func NewFileClient(addr string, metrics *middleware.Metrics) (*FileClient, error
 	}, nil
 }
 
-func (c *FileClient) UploadFile(ctx context.Context, fileName string, fileData []byte, chunkSize int) (string, string, string, error) {
+func (c *FileClient) UploadFile(ctx context.Context, fileName, fileOwner string, fileData []byte, chunkSize int) (string, string, string, error) {
 	stream, err := c.api.UploadFile(ctx)
 	if err != nil {
 		return "", "", "", fmt.Errorf("failed to create upload stream: %w", err)
@@ -48,8 +48,9 @@ func (c *FileClient) UploadFile(ctx context.Context, fileName string, fileData [
 
 		chunk := fileData[offset:end]
 		req := &fileProto.UploadFileRequest{
-			FileName: fileName,
-			Data:     chunk,
+			FileName:  fileName,
+			FileOwner: fileOwner,
+			Data:      chunk,
 		}
 
 		if err := stream.Send(req); err != nil {
@@ -91,9 +92,10 @@ func (c *FileClient) GetFiles(ctx context.Context, fileIDs []string) ([]string, 
 	return resp.FileUrls, nil
 }
 
-func (c *FileClient) DeleteFile(ctx context.Context, fileID string) (string, error) {
+func (c *FileClient) DeleteFile(ctx context.Context, fileID string, fileOwner string) (string, error) {
 	resp, err := c.api.DeleteFile(ctx, &fileProto.DeleteFileRequest{
-		FileId: fileID,
+		FileId:    fileID,
+		FileOwner: fileOwner,
 	})
 
 	if err != nil {
@@ -104,9 +106,10 @@ func (c *FileClient) DeleteFile(ctx context.Context, fileID string) (string, err
 	return resp.Message, nil
 }
 
-func (c *FileClient) DeleteFiles(ctx context.Context, fileIDs []string) (string, error) {
+func (c *FileClient) DeleteFiles(ctx context.Context, fileIDs []string, fileOwner string) (string, error) {
 	resp, err := c.api.DeleteFiles(ctx, &fileProto.DeleteFilesRequest{
-		FileIds: fileIDs,
+		FileIds:   fileIDs,
+		FileOwner: fileOwner,
 	})
 
 	if err != nil {

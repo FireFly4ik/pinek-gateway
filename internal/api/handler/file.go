@@ -62,7 +62,7 @@ func (h *Handler) UploadFile(c *gin.Context) {
 	}
 	defer grpcConn.Close()
 
-	fileID, fileURL, message, err := grpcConn.UploadFile(context.Background(), header.Filename, fileData, ChunkSize)
+	fileID, fileURL, message, err := grpcConn.UploadFile(context.Background(), header.Filename, c.MustGet("user_id").(string), fileData, ChunkSize)
 	if err != nil {
 		log.Error().Err(err).Msg("file upload failed")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "file upload failed"})
@@ -198,7 +198,7 @@ func (h *Handler) DeleteFile(c *gin.Context) {
 	}
 	defer grpcConn.Close()
 
-	message, err := grpcConn.DeleteFile(context.Background(), fileID)
+	message, err := grpcConn.DeleteFile(context.Background(), fileID, c.MustGet("user_id").(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete file"})
 		return
@@ -243,7 +243,7 @@ func (h *Handler) DeleteFiles(c *gin.Context) {
 	}
 	defer grpcConn.Close()
 
-	message, err := grpcConn.DeleteFiles(context.Background(), req.FileIDs)
+	message, err := grpcConn.DeleteFiles(context.Background(), req.FileIDs, c.MustGet("user_id").(string))
 	if err != nil {
 		log.Error().Err(err).Msg("failed to delete files")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete files"})
