@@ -27,6 +27,13 @@ const (
 	GetFilesRoute    = "/files"
 	DeleteFileRoute  = "/:id"
 	DeleteFilesRoute = "/files"
+
+	CreatePostRoute  = "/post"
+	UpdatePostRoute  = "/post/:id"
+	GetPostRoute     = "/post/:id"
+	GetPostsRoute    = "/post"
+	SearchPostsRoute = "/post/search"
+	DeletePostRoute  = "/post/:id"
 )
 
 type Handler struct {
@@ -77,6 +84,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			fileGroup.GET(GetFilesRoute, h.GetFiles)
 			fileGroup.DELETE(DeleteFileRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeleteFile)
 			fileGroup.DELETE(DeleteFilesRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeleteFiles)
+		}
+
+		postGroup := handler.Group("/post")
+		{
+			postGroup.POST(CreatePostRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.CreatePost)
+			postGroup.POST(UpdatePostRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.UpdatePost)
+			postGroup.GET(GetPostRoute, h.GetPost)
+			postGroup.GET(GetPostsRoute, h.GetPosts)
+			postGroup.GET(SearchPostsRoute, h.SearchPosts)
+			postGroup.DELETE(DeletePostRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeletePost)
 		}
 	}
 
