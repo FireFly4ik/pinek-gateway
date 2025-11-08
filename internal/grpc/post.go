@@ -184,7 +184,7 @@ func (c *PostClient) CreateBoard(ctx context.Context, userId, name, description 
 	return res.BoardId, nil
 }
 
-func (c *PostClient) UpdateBoard(ctx context.Context, boardId, userId, name, description string) error {
+func (c *PostClient) UpdateBoard(ctx context.Context, boardId, userId, name, description string) (string, error) {
 	req := &postProto.UpdateBoardRequest{
 		BoardId:     boardId,
 		UserId:      userId,
@@ -192,13 +192,13 @@ func (c *PostClient) UpdateBoard(ctx context.Context, boardId, userId, name, des
 		Description: description,
 	}
 
-	_, err := c.api.UpdateBoard(ctx, req)
+	res, err := c.api.UpdateBoard(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to update board via gRPC")
-		return fmt.Errorf("update board grpc: %w", err)
+		return "", fmt.Errorf("update board grpc: %w", err)
 	}
 
-	return nil
+	return res.Message, nil
 }
 
 func (c *PostClient) GetBoard(ctx context.Context, boardId string) (string, string, string, string, [][]string, error) {
@@ -284,19 +284,19 @@ func (c *PostClient) SearchBoards(ctx context.Context, query string, userIds, po
 	return boardIdsRes, userIdsRes, names, descriptions, posts, nil
 }
 
-func (c *PostClient) DeleteBoard(ctx context.Context, boardId, userId string) error {
+func (c *PostClient) DeleteBoard(ctx context.Context, boardId, userId string) (string, error) {
 	req := &postProto.DeleteBoardRequest{
 		BoardId: boardId,
 		UserId:  userId,
 	}
 
-	_, err := c.api.DeleteBoard(ctx, req)
+	resp, err := c.api.DeleteBoard(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to delete board via gRPC")
-		return fmt.Errorf("delete board grpc: %w", err)
+		return "", fmt.Errorf("delete board grpc: %w", err)
 	}
 
-	return nil
+	return resp.Message, nil
 }
 
 func (c *PostClient) CreateTag(ctx context.Context, name string) (string, error) {

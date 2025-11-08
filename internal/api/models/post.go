@@ -55,13 +55,8 @@ type CreateBoardRequest struct {
 }
 
 type UpdateBoardRequest struct {
-	BoardId     string `json:"board_id" binding:"required"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-}
-
-type GetBoardRequest struct {
-	BoardId string `json:"board_id" binding:"required"`
 }
 
 type GetBoardsRequest struct {
@@ -74,10 +69,6 @@ type SearchBoardsRequest struct {
 	PostIds []string `json:"post_ids"`
 	Limit   int      `json:"limit"`
 	Offset  int      `json:"offset"`
-}
-
-type DeleteBoardRequest struct {
-	BoardId string `json:"board_id" binding:"required"`
 }
 
 type CreateTagRequest struct {

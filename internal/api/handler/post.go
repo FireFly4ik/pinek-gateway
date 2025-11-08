@@ -269,3 +269,280 @@ func (h *Handler) DeletePost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
+
+func (h *Handler) CreateBoard(c *gin.Context) {
+	var req models.CreateBoardRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	boardId, err := grpcConn.CreateBoard(c.Request.Context(), userId, req.Name, req.Description)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.CreateBoardResponse{
+		BoardId: boardId,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) UpdateBoard(c *gin.Context) {
+	var req models.UpdateBoardRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	boardId := c.Param("id")
+	if boardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Board ID is required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.UpdateBoard(c.Request.Context(), boardId, userId, req.Name, req.Description)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.UpdateBoardResponse{
+		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetBoard(c *gin.Context) {
+	boardId := c.Param("id")
+	if boardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Board ID is required"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	boardId, userId, name, description, posts, err := grpcConn.GetBoard(c.Request.Context(), boardId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	postStructs := make([]models.Post, len(posts))
+	for i, post := range posts {
+		postStructs[i] = models.Post{
+			PostId:      post[0],
+			UserId:      post[1],
+			Title:       post[2],
+			Description: post[3],
+			Extension:   post[4],
+		}
+	}
+
+	resp := models.GetBoardResponse{
+		Board: models.Board{
+			BoardId:     boardId,
+			UserId:      userId,
+			Name:        name,
+			Description: description,
+			Posts:       postStructs,
+		},
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetBoards(c *gin.Context) {
+	var req models.GetBoardsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.GetBoards(c.Request.Context(), req.BoardsIds)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get boards"})
+		return
+	}
+
+	grpcConn.Close()
+
+	boardsResp := make([]models.Board, len(boardsIds))
+	for i := range boardsIds {
+		postStructs := make([]models.Post, len(postsList[i]))
+		for j, post := range postsList[i] {
+			postStructs[j] = models.Post{
+				PostId:      post[0],
+				UserId:      post[1],
+				Title:       post[2],
+				Description: post[3],
+				Extension:   post[4],
+			}
+		}
+
+		boardsResp[i] = models.Board{
+			BoardId:     boardsIds[i],
+			UserId:      userIds[i],
+			Name:        names[i],
+			Description: descriptions[i],
+			Posts:       postStructs,
+		}
+	}
+
+	resp := models.GetBoardsResponse{
+		Boards: boardsResp,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) SearchBoards(c *gin.Context) {
+	var req models.SearchBoardsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.SearchBoards(c.Request.Context(), req.Query, req.UserIds, req.PostIds, req.Limit, req.Offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search boards"})
+		return
+	}
+
+	grpcConn.Close()
+
+	boardsResp := make([]models.Board, len(boardsIds))
+	for i := range boardsIds {
+		postStructs := make([]models.Post, len(postsList[i]))
+		for j, post := range postsList[i] {
+			postStructs[j] = models.Post{
+				PostId:      post[0],
+				UserId:      post[1],
+				Title:       post[2],
+				Description: post[3],
+				Extension:   post[4],
+			}
+
+			boardsResp[i] = models.Board{
+				BoardId:     boardsIds[i],
+				UserId:      userIds[i],
+				Name:        names[i],
+				Description: descriptions[i],
+				Posts:       postStructs,
+			}
+		}
+	}
+
+	resp := models.SearchBoardsResponse{
+		Boards: boardsResp,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) DeleteBoard(c *gin.Context) {
+	boardId := c.Param("id")
+	if boardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Board ID is required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.DeleteBoard(c.Request.Context(), boardId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.DeleteBoardResponse{
+		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}

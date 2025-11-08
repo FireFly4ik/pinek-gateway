@@ -28,12 +28,18 @@ const (
 	DeleteFileRoute  = "/:id"
 	DeleteFilesRoute = "/files"
 
-	CreatePostRoute  = "/post"
-	UpdatePostRoute  = "/post/:id"
-	GetPostRoute     = "/post/:id"
-	GetPostsRoute    = "/post"
-	SearchPostsRoute = "/post/search"
-	DeletePostRoute  = "/post/:id"
+	CreatePostRoute   = "/post"
+	UpdatePostRoute   = "/post/:id"
+	GetPostRoute      = "/post/:id"
+	GetPostsRoute     = "/post"
+	SearchPostsRoute  = "/post/search"
+	DeletePostRoute   = "/post/:id"
+	CreateBoardRoute  = "/board"
+	UpdateBoardRoute  = "/board/:id"
+	GetBoardRoute     = "/board/:id"
+	GetBoardsRoute    = "/board"
+	SearchBoardsRoute = "/board/search"
+	DeleteBoardRoute  = "/board/:id"
 )
 
 type Handler struct {
@@ -94,6 +100,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			postGroup.GET(GetPostsRoute, h.GetPosts)
 			postGroup.GET(SearchPostsRoute, h.SearchPosts)
 			postGroup.DELETE(DeletePostRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeletePost)
+			postGroup.POST(CreateBoardRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.CreateBoard)
+			postGroup.POST(UpdateBoardRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.UpdateBoard)
+			postGroup.GET(GetBoardRoute, h.GetBoard)
+			postGroup.GET(GetBoardsRoute, h.GetBoards)
+			postGroup.GET(SearchBoardsRoute, h.SearchBoards)
+			postGroup.DELETE(DeleteBoardRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeleteBoard)
 		}
 	}
 
