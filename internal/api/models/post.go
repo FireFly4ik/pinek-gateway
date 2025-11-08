@@ -143,7 +143,6 @@ type DeletePostResponse struct {
 
 type CreateBoardResponse struct {
 	BoardId string `json:"board_id"`
-	Message string `json:"message"`
 }
 
 type UpdateBoardResponse struct {
@@ -167,8 +166,7 @@ type DeleteBoardResponse struct {
 }
 
 type CreateTagResponse struct {
-	TagId   string `json:"tag_id"`
-	Message string `json:"message"`
+	TagId string `json:"tag_id"`
 }
 
 type GetTagResponse struct {
