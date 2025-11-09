@@ -7,6 +7,18 @@ import (
 	"net/http"
 )
 
+// CreatePost создание поста
+// @Summary Создание поста
+// @Description Создание нового поста
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param post body models.CreatePostRequest true "Создание поста"
+// @Success 200 {object} models.CreatePostResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post [post]
 func (h *Handler) CreatePost(c *gin.Context) {
 	var req models.CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -43,6 +55,19 @@ func (h *Handler) CreatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// UpdatePost обновление поста
+// @Summary Обновление поста
+// @Description Обновление существующего поста
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID поста"
+// @Param post body models.UpdatePostRequest true "Обновление поста"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/{id} [post]
 func (h *Handler) UpdatePost(c *gin.Context) {
 	var req models.UpdatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,6 +106,17 @@ func (h *Handler) UpdatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Post updated successfully"})
 }
 
+// GetPost получение поста по ID
+// @Summary Получение поста по ID
+// @Description Получение поста по его ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param id path string true "ID поста"
+// @Success 200 {object} models.GetPostResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/{id} [get]
 func (h *Handler) GetPost(c *gin.Context) {
 	postId := c.Param("id")
 	if postId == "" {
@@ -130,6 +166,17 @@ func (h *Handler) GetPost(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetPosts получение нескольких постов по ID
+// @Summary Получение нескольких постов по ID
+// @Description Получение нескольких постов по их ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param posts body models.GetPostsRequest true "Получение нескольких постов"
+// @Success 200 {object} models.GetPostsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post [get]
 func (h *Handler) GetPosts(c *gin.Context) {
 	var req models.GetPostsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -184,6 +231,17 @@ func (h *Handler) GetPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// SearchPosts поиск постов по параметрам
+// @Summary Поиск постов по параметрам
+// @Description Поиск постов по заданным параметрам
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param search body models.SearchPostsRequest true "Поиск постов"
+// @Success 200 {object} models.SearchPostsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/search [get]
 func (h *Handler) SearchPosts(c *gin.Context) {
 	var req models.SearchPostsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -238,6 +296,18 @@ func (h *Handler) SearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// DeletePost удаление поста по ID
+// @Summary Удаление поста по ID
+// @Description Удаление поста по его ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID поста"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/{id} [delete]
 func (h *Handler) DeletePost(c *gin.Context) {
 	postId := c.Param("id")
 	if postId == "" {
@@ -270,6 +340,18 @@ func (h *Handler) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
+// UpdateBoard обновление доски
+// @Summary Обновление доски
+// @Description Обновление существующей доски
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param board body models.UpdateBoardRequest true "Обновление доски"
+// @Success 200 {object} models.UpdateBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board [post]
 func (h *Handler) CreateBoard(c *gin.Context) {
 	var req models.CreateBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -306,6 +388,19 @@ func (h *Handler) CreateBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// UpdateBoard обновление доски
+// @Summary Обновление доски
+// @Description Обновление существующей доски
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID доски"
+// @Param board body models.UpdateBoardRequest true "Обновление доски"
+// @Success 200 {object} models.UpdateBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board/{id} [post]
 func (h *Handler) UpdateBoard(c *gin.Context) {
 	var req models.UpdateBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -348,6 +443,17 @@ func (h *Handler) UpdateBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetBoard получение доски по ID
+// @Summary Получение доски по ID
+// @Description Получение доски по ее ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param id path string true "ID доски"
+// @Success 200 {object} models.GetBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board/{id} [get]
 func (h *Handler) GetBoard(c *gin.Context) {
 	boardId := c.Param("id")
 	if boardId == "" {
@@ -399,6 +505,17 @@ func (h *Handler) GetBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetBoards получение нескольких досок по ID
+// @Summary Получение нескольких досок по ID
+// @Description Получение нескольких досок по их ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param boards body models.GetBoardsRequest true "Получение нескольких досок"
+// @Success 200 {object} models.GetBoardsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board [get]
 func (h *Handler) GetBoards(c *gin.Context) {
 	var req models.GetBoardsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -455,6 +572,17 @@ func (h *Handler) GetBoards(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// SearchBoards поиск досок по параметрам
+// @Summary Поиск досок по параметрам
+// @Description Поиск досок по заданным параметрам
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param search body models.SearchBoardsRequest true "Поиск досок"
+// @Success 200 {object} models.SearchBoardsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board/search [get]
 func (h *Handler) SearchBoards(c *gin.Context) {
 	var req models.SearchBoardsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -511,6 +639,18 @@ func (h *Handler) SearchBoards(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// DeleteBoard удаление доски по ID
+// @Summary Удаление доски по ID
+// @Description Удаление доски по ее ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID доски"
+// @Success 200 {object} models.DeleteBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/board/{id} [delete]
 func (h *Handler) DeleteBoard(c *gin.Context) {
 	boardId := c.Param("id")
 	if boardId == "" {
@@ -547,6 +687,18 @@ func (h *Handler) DeleteBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetBoards получение нескольких досок по ID
+// @Summary Получение нескольких досок по ID
+// @Description Получение нескольких досок по их ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param tag body models.CreateTagRequest true "Создание тега"
+// @Success 200 {object} models.CreateTagResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/tag [post]
 func (h *Handler) CreateTag(c *gin.Context) {
 	var req models.CreateTagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -581,6 +733,17 @@ func (h *Handler) CreateTag(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetTag получение тега по ID
+// @Summary Получение тега по ID
+// @Description Получение тега по его ID
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param id path string true "ID тега"
+// @Success 200 {object} models.GetTagResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/tag/{id} [get]
 func (h *Handler) GetTag(c *gin.Context) {
 	tagId := c.Param("id")
 	if tagId == "" {
@@ -618,6 +781,17 @@ func (h *Handler) GetTag(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// SearchTags поиск тегов по параметрам
+// @Summary Поиск тегов по параметрам
+// @Description Поиск тегов по заданным параметрам
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param search body models.SearchTagsRequest true "Поиск тегов"
+// @Success 200 {object} models.SearchTagsResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /post/tag/search [get]
 func (h *Handler) SearchTags(c *gin.Context) {
 	var req models.SearchTagsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -660,6 +834,19 @@ func (h *Handler) SearchTags(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// PinPostToBoard прикрепление поста к доске
+// @Summary Прикрепление поста к доске
+// @Description Прикрепление поста к доске
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param post_id path string true "ID поста"
+// @Param board_id path string true "ID доски"
+// @Success 200 {object} models.PinPostToBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /pin/{post_id}/{board_id} [post]
 func (h *Handler) PinPostToBoard(c *gin.Context) {
 	postId := c.Param("post_id")
 	boardId := c.Param("board_id")
@@ -697,6 +884,19 @@ func (h *Handler) PinPostToBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// UnpinPostFromBoard открепление поста от доски
+// @Summary Открепление поста от доски
+// @Description Открепление поста от доски
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param post_id path string true "ID поста"
+// @Param board_id path string true "ID доски"
+// @Success 200 {object} models.UnpinPostFromBoardResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /unpin/{post_id}/{board_id} [post]
 func (h *Handler) UnpinPostFromBoard(c *gin.Context) {
 	postId := c.Param("post_id")
 	boardId := c.Param("board_id")
@@ -735,6 +935,19 @@ func (h *Handler) UnpinPostFromBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// AddTagToPost добавление тега к посту
+// @Summary Добавление тега к посту
+// @Description Добавление тега к посту
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param post_id path string true "ID поста"
+// @Param tag_id path string true "ID тега"
+// @Success 200 {object} models.AddTagToPostResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tag/{post_id}/{tag_id} [post]
 func (h *Handler) AddTagToPost(c *gin.Context) {
 	postId := c.Param("post_id")
 	tagId := c.Param("tag_id")
@@ -772,6 +985,19 @@ func (h *Handler) AddTagToPost(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// AddTagToPost добавление тега к посту
+// @Summary Добавление тега к посту
+// @Description Добавление тега к посту
+// @Tags post
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param post_id path string true "ID поста"
+// @Param tag_id path string true "ID тега"
+// @Success 200 {object} models.RemoveTagFromPostResponse
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /untag/{post_id}/{tag_id} [post]
 func (h *Handler) RemoveTagFromPost(c *gin.Context) {
 	postId := c.Param("post_id")
 	tagId := c.Param("tag_id")

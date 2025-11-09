@@ -1,5 +1,10 @@
 basePath: /api/v1/
 definitions:
+  models.AddTagToPostResponse:
+    properties:
+      message:
+        type: string
+    type: object
   models.AuthResponse:
     properties:
       access_token:
@@ -8,6 +13,78 @@ definitions:
         type: string
       refresh_token:
         type: string
+    type: object
+  models.Board:
+    properties:
+      board_id:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+      user_id:
+        type: string
+    type: object
+  models.CreatePostRequest:
+    properties:
+      description:
+        type: string
+      post_id:
+        type: string
+      title:
+        type: string
+    required:
+    - post_id
+    - title
+    type: object
+  models.CreatePostResponse:
+    properties:
+      message:
+        type: string
+      post_id:
+        type: string
+    type: object
+  models.CreateTagRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.CreateTagResponse:
+    properties:
+      tag_id:
+        type: string
+    type: object
+  models.DeleteBoardResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.GetBoardResponse:
+    properties:
+      board:
+        $ref: '#/definitions/models.Board'
+    type: object
+  models.GetBoardsRequest:
+    properties:
+      boards_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - boards_ids
+    type: object
+  models.GetBoardsResponse:
+    properties:
+      boards:
+        items:
+          $ref: '#/definitions/models.Board'
+        type: array
     type: object
   models.GetFileResponse:
     properties:
@@ -20,6 +97,32 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  models.GetPostResponse:
+    properties:
+      post:
+        $ref: '#/definitions/models.Post'
+    type: object
+  models.GetPostsRequest:
+    properties:
+      posts_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - posts_ids
+    type: object
+  models.GetPostsResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+    type: object
+  models.GetTagResponse:
+    properties:
+      tag:
+        $ref: '#/definitions/models.Tag'
     type: object
   models.LoginRequest:
     properties:
@@ -43,6 +146,28 @@ definitions:
       message:
         type: string
     type: object
+  models.PinPostToBoardResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Post:
+    properties:
+      description:
+        type: string
+      extension:
+        type: string
+      post_id:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
   models.RefreshRequest:
     properties:
       refresh_token:
@@ -62,6 +187,106 @@ definitions:
     - login
     - password
     - username
+    type: object
+  models.RemoveTagFromPostResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.SearchBoardsRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      post_ids:
+        items:
+          type: string
+        type: array
+      query:
+        type: string
+      user_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.SearchBoardsResponse:
+    properties:
+      boards:
+        items:
+          $ref: '#/definitions/models.Board'
+        type: array
+    type: object
+  models.SearchPostsRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      query:
+        type: string
+      tag_ids:
+        items:
+          type: string
+        type: array
+      user_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.SearchPostsResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+    type: object
+  models.SearchTagsRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      query:
+        type: string
+    type: object
+  models.SearchTagsResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+    type: object
+  models.Tag:
+    properties:
+      name:
+        type: string
+      tag_id:
+        type: string
+    type: object
+  models.UnpinPostFromBoardResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.UpdateBoardRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  models.UpdateBoardResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.UpdatePostRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
     type: object
   models.UploadDeleteFilesResponse:
     properties:
@@ -257,6 +482,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Получение файла по ID
       tags:
       - file
@@ -325,6 +552,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Удаление нескольких файлов по ID
       tags:
       - file
@@ -391,9 +620,698 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Загрузка файла
       tags:
       - file
+  /pin/{post_id}/{board_id}:
+    post:
+      consumes:
+      - application/json
+      description: Прикрепление поста к доске
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID доски
+        in: path
+        name: board_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PinPostToBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Прикрепление поста к доске
+      tags:
+      - post
+  /post:
+    get:
+      consumes:
+      - application/json
+      description: Получение нескольких постов по их ID
+      parameters:
+      - description: Получение нескольких постов
+        in: body
+        name: posts
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetPostsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetPostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение нескольких постов по ID
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Создание нового поста
+      parameters:
+      - description: Создание поста
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreatePostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Создание поста
+      tags:
+      - post
+  /post/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление поста по его ID
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление поста по ID
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      description: Получение поста по его ID
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение поста по ID
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Обновление существующего поста
+      parameters:
+      - description: ID поста
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Обновление поста
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление поста
+      tags:
+      - post
+  /post/board:
+    get:
+      consumes:
+      - application/json
+      description: Получение нескольких досок по их ID
+      parameters:
+      - description: Получение нескольких досок
+        in: body
+        name: boards
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetBoardsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetBoardsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение нескольких досок по ID
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Обновление существующей доски
+      parameters:
+      - description: Обновление доски
+        in: body
+        name: board
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateBoardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление доски
+      tags:
+      - post
+  /post/board/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление доски по ее ID
+      parameters:
+      - description: ID доски
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeleteBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление доски по ID
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      description: Получение доски по ее ID
+      parameters:
+      - description: ID доски
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение доски по ID
+      tags:
+      - post
+    post:
+      consumes:
+      - application/json
+      description: Обновление существующей доски
+      parameters:
+      - description: ID доски
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Обновление доски
+        in: body
+        name: board
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateBoardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление доски
+      tags:
+      - post
+  /post/board/search:
+    get:
+      consumes:
+      - application/json
+      description: Поиск досок по заданным параметрам
+      parameters:
+      - description: Поиск досок
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchBoardsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SearchBoardsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Поиск досок по параметрам
+      tags:
+      - post
+  /post/search:
+    get:
+      consumes:
+      - application/json
+      description: Поиск постов по заданным параметрам
+      parameters:
+      - description: Поиск постов
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchPostsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SearchPostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Поиск постов по параметрам
+      tags:
+      - post
+  /post/tag:
+    post:
+      consumes:
+      - application/json
+      description: Получение нескольких досок по их ID
+      parameters:
+      - description: Создание тега
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreateTagResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Получение нескольких досок по ID
+      tags:
+      - post
+  /post/tag/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Получение тега по его ID
+      parameters:
+      - description: ID тега
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetTagResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение тега по ID
+      tags:
+      - post
+  /post/tag/search:
+    get:
+      consumes:
+      - application/json
+      description: Поиск тегов по заданным параметрам
+      parameters:
+      - description: Поиск тегов
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchTagsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SearchTagsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Поиск тегов по параметрам
+      tags:
+      - post
+  /tag/{post_id}/{tag_id}:
+    post:
+      consumes:
+      - application/json
+      description: Добавление тега к посту
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID тега
+        in: path
+        name: tag_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddTagToPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление тега к посту
+      tags:
+      - post
+  /unpin/{post_id}/{board_id}:
+    post:
+      consumes:
+      - application/json
+      description: Открепление поста от доски
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID доски
+        in: path
+        name: board_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UnpinPostFromBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Открепление поста от доски
+      tags:
+      - post
+  /untag/{post_id}/{tag_id}:
+    post:
+      consumes:
+      - application/json
+      description: Добавление тега к посту
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID тега
+        in: path
+        name: tag_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RemoveTagFromPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление тега к посту
+      tags:
+      - post
 securityDefinitions:
   ApiKeyAuth:
     description: 'JWT token in the format: Bearer {token}'

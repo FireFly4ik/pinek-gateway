@@ -21,6 +21,7 @@ const (
 // @Tags file
 // @Accept multipart/form-data
 // @Produce json
+// @Security ApiKeyAuth
 // @Param file formData file true "Файл для загрузки"
 // @Success 200 {object} models.UploadFileResponse
 // @Failure 400 {object} map[string]string
@@ -173,6 +174,7 @@ func (h *Handler) GetFiles(c *gin.Context) {
 // @Tags file
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "ID файла"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
@@ -215,6 +217,7 @@ func (h *Handler) DeleteFile(c *gin.Context) {
 // @Tags file
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param file_ids body models.UploadDeleteFilesResponse true "IDs файлов"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
