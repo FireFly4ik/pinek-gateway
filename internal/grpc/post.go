@@ -268,7 +268,7 @@ func (c *PostClient) SearchBoards(ctx context.Context, query string, userIds, po
 	var boardIdsRes, userIdsRes, names, descriptions []string
 	posts := make([][][]string, len(res.Boards))
 
-	for _, board := range res.Boards {
+	for i, board := range res.Boards {
 		post := make([][]string, len(board.Posts))
 		for i, p := range board.Posts {
 			post[i] = []string{p.PostId, p.UserId, p.Title, p.Description, p.Extension}
@@ -278,7 +278,7 @@ func (c *PostClient) SearchBoards(ctx context.Context, query string, userIds, po
 		userIdsRes = append(userIdsRes, board.UserId)
 		names = append(names, board.Name)
 		descriptions = append(descriptions, board.Description)
-		posts = append(posts, post)
+		posts[i] = post
 	}
 
 	return boardIdsRes, userIdsRes, names, descriptions, posts, nil
