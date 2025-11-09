@@ -112,7 +112,7 @@ func (h *Handler) GetPost(c *gin.Context) {
 	for i, tag := range tags {
 		tagsResp[i] = models.Tag{
 			TagId: tag[0],
-			Name:  tag[0],
+			Name:  tag[1],
 		}
 	}
 
@@ -655,6 +655,156 @@ func (h *Handler) SearchTags(c *gin.Context) {
 
 	resp := models.SearchTagsResponse{
 		Tags: tagsResp,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) PinPostToBoard(c *gin.Context) {
+	postId := c.Param("post_id")
+	boardId := c.Param("board_id")
+	if postId == "" || boardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID and Board ID are required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.PinPostToBoard(c.Request.Context(), postId, boardId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to pin post to board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.PinPostToBoardResponse{
+		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) UnpinPostFromBoard(c *gin.Context) {
+	postId := c.Param("post_id")
+	boardId := c.Param("board_id")
+
+	if postId == "" || boardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID and Board ID are required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.UnpinPostFromBoard(c.Request.Context(), postId, boardId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unpin post from board"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.UnpinPostFromBoardResponse{
+		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) AddTagToPost(c *gin.Context) {
+	postId := c.Param("post_id")
+	tagId := c.Param("tag_id")
+	if postId == "" || tagId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID and Tag ID are required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.AddTagToPost(c.Request.Context(), postId, tagId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add tag to post"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.AddTagToPostResponse{
+		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) RemoveTagFromPost(c *gin.Context) {
+	postId := c.Param("post_id")
+	tagId := c.Param("tag_id")
+
+	if postId == "" || tagId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID and Tag ID are required"})
+		return
+	}
+
+	userId := c.GetString("user_id")
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	message, err := grpcConn.RemoveTagFromPost(c.Request.Context(), postId, tagId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove tag from post"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.RemoveTagFromPostResponse{
+		Message: message,
 	}
 
 	c.JSON(http.StatusOK, resp)

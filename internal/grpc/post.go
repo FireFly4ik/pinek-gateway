@@ -350,68 +350,68 @@ func (c *PostClient) SearchTags(ctx context.Context, query string, limit, offset
 	return tagIds, names, nil
 }
 
-func (c *PostClient) PinPostToBoard(ctx context.Context, postId, boardId, userId string) error {
+func (c *PostClient) PinPostToBoard(ctx context.Context, postId, boardId, userId string) (string, error) {
 	req := &postProto.PinPostToBoardRequest{
 		PostId:  postId,
 		BoardId: boardId,
 		UserId:  userId,
 	}
 
-	_, err := c.api.PinPostToBoard(ctx, req)
+	res, err := c.api.PinPostToBoard(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to pin post to board via gRPC")
-		return fmt.Errorf("pin post to board grpc: %w", err)
+		return "", fmt.Errorf("pin post to board grpc: %w", err)
 	}
 
-	return nil
+	return res.Message, nil
 }
 
-func (c *PostClient) UnpinPostFromBoard(ctx context.Context, postId, boardId, userId string) error {
+func (c *PostClient) UnpinPostFromBoard(ctx context.Context, postId, boardId, userId string) (string, error) {
 	req := &postProto.UnpinPostFromBoardRequest{
 		PostId:  postId,
 		BoardId: boardId,
 		UserId:  userId,
 	}
 
-	_, err := c.api.UnpinPostFromBoard(ctx, req)
+	res, err := c.api.UnpinPostFromBoard(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to unpin post from board via gRPC")
-		return fmt.Errorf("unpin post from board grpc: %w", err)
+		return "", fmt.Errorf("unpin post from board grpc: %w", err)
 	}
 
-	return nil
+	return res.Message, nil
 }
 
-func (c *PostClient) AddTagToPost(ctx context.Context, postId, tagId, userId string) error {
+func (c *PostClient) AddTagToPost(ctx context.Context, postId, tagId, userId string) (string, error) {
 	req := &postProto.AddTagToPostRequest{
 		PostId: postId,
 		TagId:  tagId,
 		UserId: userId,
 	}
 
-	_, err := c.api.AddTagToPost(ctx, req)
+	res, err := c.api.AddTagToPost(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to add tag to post via gRPC")
-		return fmt.Errorf("add tag to post grpc: %w", err)
+		return "", fmt.Errorf("add tag to post grpc: %w", err)
 	}
 
-	return nil
+	return res.Message, nil
 }
 
-func (c *PostClient) RemoveTagFromPost(ctx context.Context, postId, tagId, userId string) error {
+func (c *PostClient) RemoveTagFromPost(ctx context.Context, postId, tagId, userId string) (string, error) {
 	req := &postProto.RemoveTagFromPostRequest{
 		PostId: postId,
 		TagId:  tagId,
 		UserId: userId,
 	}
 
-	_, err := c.api.RemoveTagFromPost(ctx, req)
+	res, err := c.api.RemoveTagFromPost(ctx, req)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to remove tag from post via gRPC")
-		return fmt.Errorf("remove tag from post grpc: %w", err)
+		return "", fmt.Errorf("remove tag from post grpc: %w", err)
 	}
 
-	return nil
+	return res.Message, nil
 }
 
 func (c *PostClient) Close() {

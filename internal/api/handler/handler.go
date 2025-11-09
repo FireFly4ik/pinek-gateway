@@ -28,21 +28,25 @@ const (
 	DeleteFileRoute  = "/:id"
 	DeleteFilesRoute = "/files"
 
-	CreatePostRoute   = "/post"
-	UpdatePostRoute   = "/post/:id"
-	GetPostRoute      = "/post/:id"
-	GetPostsRoute     = "/post"
-	SearchPostsRoute  = "/post/search"
-	DeletePostRoute   = "/post/:id"
-	CreateBoardRoute  = "/board"
-	UpdateBoardRoute  = "/board/:id"
-	GetBoardRoute     = "/board/:id"
-	GetBoardsRoute    = "/board"
-	SearchBoardsRoute = "/board/search"
-	DeleteBoardRoute  = "/board/:id"
-	CreateTagRoute    = "/tag"
-	GetTagRoute       = "/tag/:id"
-	SearchTagsRoute   = "/tag/search"
+	CreatePostRoute    = "/post"
+	UpdatePostRoute    = "/post/:id"
+	GetPostRoute       = "/post/:id"
+	GetPostsRoute      = "/post"
+	SearchPostsRoute   = "/post/search"
+	DeletePostRoute    = "/post/:id"
+	CreateBoardRoute   = "/board"
+	UpdateBoardRoute   = "/board/:id"
+	GetBoardRoute      = "/board/:id"
+	GetBoardsRoute     = "/board"
+	SearchBoardsRoute  = "/board/search"
+	DeleteBoardRoute   = "/board/:id"
+	CreateTagRoute     = "/tag"
+	GetTagRoute        = "/tag/:id"
+	SearchTagsRoute    = "/tag/search"
+	PinPostToBoard     = "/pin/:post_id/:board_id"
+	UnpinPostFromBoard = "/unpin/:post_id/:board_id"
+	AddTagToPost       = "/tag/:post_id/:tag_id"
+	RemoveTagFromPost  = "/untag/:post_id/:tag_id"
 )
 
 type Handler struct {
@@ -112,6 +116,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			postGroup.POST(CreateTagRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.CreateTag)
 			postGroup.GET(GetTagRoute, h.GetTag)
 			postGroup.GET(SearchTagsRoute, h.SearchTags)
+			postGroup.POST(PinPostToBoard, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.PinPostToBoard)
+			postGroup.POST(UnpinPostFromBoard, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.UnpinPostFromBoard)
+			postGroup.POST(AddTagToPost, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.AddTagToPost)
+			postGroup.POST(RemoveTagFromPost, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.RemoveTagFromPost)
 		}
 	}
 
