@@ -5,6 +5,7 @@ import (
 	"gateway/internal/grpc"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // CreatePost создание поста
@@ -18,7 +19,7 @@ import (
 // @Success 200 {object} models.CreatePostResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post [post]
+// @Router /post/post [post]
 func (h *Handler) CreatePost(c *gin.Context) {
 	var req models.CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -67,7 +68,7 @@ func (h *Handler) CreatePost(c *gin.Context) {
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post/{id} [post]
+// @Router /post/post/{id} [post]
 func (h *Handler) UpdatePost(c *gin.Context) {
 	var req models.UpdatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -116,7 +117,7 @@ func (h *Handler) UpdatePost(c *gin.Context) {
 // @Success 200 {object} models.GetPostResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post/{id} [get]
+// @Router /post/post/{id} [get]
 func (h *Handler) GetPost(c *gin.Context) {
 	postId := c.Param("id")
 	if postId == "" {
@@ -172,15 +173,15 @@ func (h *Handler) GetPost(c *gin.Context) {
 // @Tags post
 // @Accept json
 // @Produce json
-// @Param posts body models.GetPostsRequest true "Получение нескольких постов"
+// @Param posts_ids query string true "IDs постов, через запятую (например: id1,id2,id3)"
 // @Success 200 {object} models.GetPostsResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post [get]
+// @Router /post/post [get]
 func (h *Handler) GetPosts(c *gin.Context) {
-	var req models.GetPostsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	postsIds := c.QueryArray("posts_ids")
+	if len(postsIds) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "posts_ids are required"})
 		return
 	}
 
@@ -196,7 +197,7 @@ func (h *Handler) GetPosts(c *gin.Context) {
 		return
 	}
 
-	postsIds, userIds, titles, descriptions, extensions, tags, err := grpcConn.GetPosts(c.Request.Context(), req.PostsIds)
+	postsIds, userIds, titles, descriptions, extensions, tags, err := grpcConn.GetPosts(c.Request.Context(), postsIds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get posts"})
 		return
@@ -237,15 +238,31 @@ func (h *Handler) GetPosts(c *gin.Context) {
 // @Tags post
 // @Accept json
 // @Produce json
-// @Param search body models.SearchPostsRequest true "Поиск постов"
+// @Param query query string false "Поисковый запрос"
+// @Param user_ids query string false "IDs пользователей, через запятую (например: id1,id2,id3)"
+// @Param tag_ids query string false "IDs тегов, через запятую (например: id1,id2,id3)"
+// @Param limit query int false "Лимит"
+// @Param offset query int false "Смещение"
 // @Success 200 {object} models.SearchPostsResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post/search [get]
+// @Router /post/post/search [get]
 func (h *Handler) SearchPosts(c *gin.Context) {
-	var req models.SearchPostsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	query := c.Query("query")
+	userIds := c.QueryArray("user_ids")
+	tagIds := c.QueryArray("tag_ids")
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset parameter"})
 		return
 	}
 
@@ -261,7 +278,7 @@ func (h *Handler) SearchPosts(c *gin.Context) {
 		return
 	}
 
-	postsIds, userIds, titles, descriptions, extensions, tags, err := grpcConn.SearchPosts(c.Request.Context(), req.Query, req.UserIds, req.TagIds, req.Limit, req.Offset)
+	postsIds, userIds, titles, descriptions, extensions, tags, err := grpcConn.SearchPosts(c.Request.Context(), query, userIds, tagIds, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search posts"})
 		return
@@ -307,7 +324,7 @@ func (h *Handler) SearchPosts(c *gin.Context) {
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /post/{id} [delete]
+// @Router /post/post/{id} [delete]
 func (h *Handler) DeletePost(c *gin.Context) {
 	postId := c.Param("id")
 	if postId == "" {
@@ -511,15 +528,15 @@ func (h *Handler) GetBoard(c *gin.Context) {
 // @Tags post
 // @Accept json
 // @Produce json
-// @Param boards body models.GetBoardsRequest true "Получение нескольких досок"
+// @Param boards_ids query string true "IDs досок, через запятую (например: id1,id2,id3)"
 // @Success 200 {object} models.GetBoardsResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /post/board [get]
 func (h *Handler) GetBoards(c *gin.Context) {
-	var req models.GetBoardsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	boardsIds := c.QueryArray("boards_ids")
+	if len(boardsIds) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "boards_ids are required"})
 		return
 	}
 
@@ -535,7 +552,7 @@ func (h *Handler) GetBoards(c *gin.Context) {
 		return
 	}
 
-	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.GetBoards(c.Request.Context(), req.BoardsIds)
+	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.GetBoards(c.Request.Context(), boardsIds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get boards"})
 		return
@@ -578,15 +595,31 @@ func (h *Handler) GetBoards(c *gin.Context) {
 // @Tags post
 // @Accept json
 // @Produce json
-// @Param search body models.SearchBoardsRequest true "Поиск досок"
+// @Param query query string false "Поисковый запрос"
+// @Param user_ids query string false "IDs пользователей, через запятую (например: id1,id2,id3)"
+// @Param post_ids query string false "IDs постов, через запятую (например: id1,id2,id3)"
+// @Param limit query int false "Лимит"
+// @Param offset query int false "Смещение"
 // @Success 200 {object} models.SearchBoardsResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /post/board/search [get]
 func (h *Handler) SearchBoards(c *gin.Context) {
-	var req models.SearchBoardsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	query := c.Query("query")
+	userIds := c.QueryArray("user_ids")
+	postIds := c.QueryArray("post_ids")
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset parameter"})
 		return
 	}
 
@@ -602,7 +635,7 @@ func (h *Handler) SearchBoards(c *gin.Context) {
 		return
 	}
 
-	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.SearchBoards(c.Request.Context(), req.Query, req.UserIds, req.PostIds, req.Limit, req.Offset)
+	boardsIds, userIds, names, descriptions, postsList, err := grpcConn.SearchBoards(c.Request.Context(), query, userIds, postIds, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search boards"})
 		return
@@ -787,15 +820,27 @@ func (h *Handler) GetTag(c *gin.Context) {
 // @Tags post
 // @Accept json
 // @Produce json
-// @Param search body models.SearchTagsRequest true "Поиск тегов"
+// @Param query query string false "Поисковый запрос"
+// @Param limit query int false "Лимит"
+// @Param offset query int false "Смещение"
 // @Success 200 {object} models.SearchTagsResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /post/tag/search [get]
 func (h *Handler) SearchTags(c *gin.Context) {
-	var req models.SearchTagsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	query := c.Query("query")
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset parameter"})
 		return
 	}
 
@@ -811,7 +856,7 @@ func (h *Handler) SearchTags(c *gin.Context) {
 		return
 	}
 
-	tagsIds, names, err := grpcConn.SearchTags(c.Request.Context(), req.Query, req.Limit, req.Offset)
+	tagsIds, names, err := grpcConn.SearchTags(c.Request.Context(), query, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search tags"})
 		return

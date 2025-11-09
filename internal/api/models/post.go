@@ -37,18 +37,6 @@ type UpdatePostRequest struct {
 	Description string `json:"description"`
 }
 
-type GetPostsRequest struct {
-	PostsIds []string `json:"posts_ids" binding:"required"`
-}
-
-type SearchPostsRequest struct {
-	Query   string   `json:"query"`
-	UserIds []string `json:"user_ids"`
-	TagIds  []string `json:"tag_ids"`
-	Limit   int      `json:"limit"`
-	Offset  int      `json:"offset"`
-}
-
 type CreateBoardRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
@@ -59,30 +47,12 @@ type UpdateBoardRequest struct {
 	Description string `json:"description"`
 }
 
-type GetBoardsRequest struct {
-	BoardsIds []string `json:"boards_ids" binding:"required"`
-}
-
-type SearchBoardsRequest struct {
-	Query   string   `json:"query"`
-	UserIds []string `json:"user_ids"`
-	PostIds []string `json:"post_ids"`
-	Limit   int      `json:"limit"`
-	Offset  int      `json:"offset"`
-}
-
 type CreateTagRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
 type GetTagRequest struct {
 	TagId string `json:"tag_id" binding:"required"`
-}
-
-type SearchTagsRequest struct {
-	Query  string `json:"query"`
-	Limit  int    `json:"limit"`
-	Offset int    `json:"offset"`
 }
 
 type PinPostToBoardRequest struct {
