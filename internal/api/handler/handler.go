@@ -40,6 +40,9 @@ const (
 	GetBoardsRoute    = "/board"
 	SearchBoardsRoute = "/board/search"
 	DeleteBoardRoute  = "/board/:id"
+	CreateTagRoute    = "/tag"
+	GetTagRoute       = "/tag/:id"
+	SearchTagsRoute   = "/tag/search"
 )
 
 type Handler struct {
@@ -106,6 +109,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			postGroup.GET(GetBoardsRoute, h.GetBoards)
 			postGroup.GET(SearchBoardsRoute, h.SearchBoards)
 			postGroup.DELETE(DeleteBoardRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.DeleteBoard)
+			postGroup.POST(CreateTagRoute, middleware.JWTAccessMiddleware(h.rsaPubKey, h.metrics), h.CreateTag)
+			postGroup.GET(GetTagRoute, h.GetTag)
+			postGroup.GET(SearchTagsRoute, h.SearchTags)
 		}
 	}
 

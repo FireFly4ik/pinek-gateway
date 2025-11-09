@@ -493,14 +493,14 @@ func (h *Handler) SearchBoards(c *gin.Context) {
 				Description: post[3],
 				Extension:   post[4],
 			}
+		}
 
-			boardsResp[i] = models.Board{
-				BoardId:     boardsIds[i],
-				UserId:      userIds[i],
-				Name:        names[i],
-				Description: descriptions[i],
-				Posts:       postStructs,
-			}
+		boardsResp[i] = models.Board{
+			BoardId:     boardsIds[i],
+			UserId:      userIds[i],
+			Name:        names[i],
+			Description: descriptions[i],
+			Posts:       postStructs,
 		}
 	}
 
@@ -542,6 +542,119 @@ func (h *Handler) DeleteBoard(c *gin.Context) {
 
 	resp := models.DeleteBoardResponse{
 		Message: message,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) CreateTag(c *gin.Context) {
+	var req models.CreateTagRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	tagId, err := grpcConn.CreateTag(c.Request.Context(), req.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tag"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.CreateTagResponse{
+		TagId: tagId,
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetTag(c *gin.Context) {
+	tagId := c.Param("id")
+	if tagId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tag ID is required"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	tagId, name, err := grpcConn.GetTag(c.Request.Context(), tagId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get tag"})
+		return
+	}
+
+	grpcConn.Close()
+
+	resp := models.GetTagResponse{
+		Tag: models.Tag{
+			TagId: tagId,
+			Name:  name,
+		},
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) SearchTags(c *gin.Context) {
+	var req models.SearchTagsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	postServiceAddress, err := h.consulProvider.GetService("post-service")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	grpcConn, err := grpc.NewPostClient(postServiceAddress, h.metrics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to connect to post service"})
+		return
+	}
+
+	tagsIds, names, err := grpcConn.SearchTags(c.Request.Context(), req.Query, req.Limit, req.Offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search tags"})
+		return
+	}
+
+	grpcConn.Close()
+
+	tagsResp := make([]models.Tag, len(tagsIds))
+	for i := range tagsIds {
+		tagsResp[i] = models.Tag{
+			TagId: tagsIds[i],
+			Name:  names[i],
+		}
+	}
+
+	resp := models.SearchTagsResponse{
+		Tags: tagsResp,
 	}
 
 	c.JSON(http.StatusOK, resp)
