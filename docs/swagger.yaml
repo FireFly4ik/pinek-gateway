@@ -564,46 +564,6 @@ paths:
       summary: Загрузка файла
       tags:
       - file
-  /pin/{post_id}/{board_id}:
-    post:
-      consumes:
-      - application/json
-      description: Прикрепление поста к доске
-      parameters:
-      - description: ID поста
-        in: path
-        name: post_id
-        required: true
-        type: string
-      - description: ID доски
-        in: path
-        name: board_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.PinPostToBoardResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Прикрепление поста к доске
-      tags:
-      - post
   /post/board:
     get:
       consumes:
@@ -825,6 +785,46 @@ paths:
               type: string
             type: object
       summary: Поиск досок по параметрам
+      tags:
+      - post
+  /post/pin/{post_id}/{board_id}:
+    post:
+      consumes:
+      - application/json
+      description: Прикрепление поста к доске
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID доски
+        in: path
+        name: board_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PinPostToBoardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Прикрепление поста к доске
       tags:
       - post
   /post/post:
@@ -1123,6 +1123,46 @@ paths:
       summary: Получение тега по ID
       tags:
       - post
+  /post/tag/{post_id}/{tag_id}:
+    post:
+      consumes:
+      - application/json
+      description: Добавление тега к посту
+      parameters:
+      - description: ID поста
+        in: path
+        name: post_id
+        required: true
+        type: string
+      - description: ID тега
+        in: path
+        name: tag_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddTagToPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление тега к посту
+      tags:
+      - post
   /post/tag/search:
     get:
       consumes:
@@ -1163,47 +1203,7 @@ paths:
       summary: Поиск тегов по параметрам
       tags:
       - post
-  /tag/{post_id}/{tag_id}:
-    post:
-      consumes:
-      - application/json
-      description: Добавление тега к посту
-      parameters:
-      - description: ID поста
-        in: path
-        name: post_id
-        required: true
-        type: string
-      - description: ID тега
-        in: path
-        name: tag_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AddTagToPostResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Добавление тега к посту
-      tags:
-      - post
-  /unpin/{post_id}/{board_id}:
+  /post/unpin/{post_id}/{board_id}:
     post:
       consumes:
       - application/json
@@ -1243,7 +1243,7 @@ paths:
       summary: Открепление поста от доски
       tags:
       - post
-  /untag/{post_id}/{tag_id}:
+  /post/untag/{post_id}/{tag_id}:
     post:
       consumes:
       - application/json

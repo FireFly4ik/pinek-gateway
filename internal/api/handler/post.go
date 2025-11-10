@@ -891,7 +891,7 @@ func (h *Handler) SearchTags(c *gin.Context) {
 // @Success 200 {object} models.PinPostToBoardResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /pin/{post_id}/{board_id} [post]
+// @Router /post/pin/{post_id}/{board_id} [post]
 func (h *Handler) PinPostToBoard(c *gin.Context) {
 	postId := c.Param("post_id")
 	boardId := c.Param("board_id")
@@ -941,7 +941,7 @@ func (h *Handler) PinPostToBoard(c *gin.Context) {
 // @Success 200 {object} models.UnpinPostFromBoardResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /unpin/{post_id}/{board_id} [post]
+// @Router /post/unpin/{post_id}/{board_id} [post]
 func (h *Handler) UnpinPostFromBoard(c *gin.Context) {
 	postId := c.Param("post_id")
 	boardId := c.Param("board_id")
@@ -992,7 +992,7 @@ func (h *Handler) UnpinPostFromBoard(c *gin.Context) {
 // @Success 200 {object} models.AddTagToPostResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /tag/{post_id}/{tag_id} [post]
+// @Router /post/tag/{post_id}/{tag_id} [post]
 func (h *Handler) AddTagToPost(c *gin.Context) {
 	postId := c.Param("post_id")
 	tagId := c.Param("tag_id")
@@ -1042,7 +1042,7 @@ func (h *Handler) AddTagToPost(c *gin.Context) {
 // @Success 200 {object} models.RemoveTagFromPostResponse
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /untag/{post_id}/{tag_id} [post]
+// @Router /post/untag/{post_id}/{tag_id} [post]
 func (h *Handler) RemoveTagFromPost(c *gin.Context) {
 	postId := c.Param("post_id")
 	tagId := c.Param("tag_id")

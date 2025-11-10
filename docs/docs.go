@@ -498,68 +498,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/pin/{post_id}/{board_id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Прикрепление поста к доске",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "Прикрепление поста к доске",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID поста",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID доски",
-                        "name": "board_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.PinPostToBoardResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/post/board": {
             "get": {
                 "description": "Получение нескольких досок по их ID",
@@ -880,6 +818,68 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.DeleteBoardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/post/pin/{post_id}/{board_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Прикрепление поста к доске",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Прикрепление поста к доске",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID поста",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID доски",
+                        "name": "board_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PinPostToBoardResponse"
                         }
                     },
                     "400": {
@@ -1420,7 +1420,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tag/{post_id}/{tag_id}": {
+        "/post/tag/{post_id}/{tag_id}": {
             "post": {
                 "security": [
                     {
@@ -1482,7 +1482,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/unpin/{post_id}/{board_id}": {
+        "/post/unpin/{post_id}/{board_id}": {
             "post": {
                 "security": [
                     {
@@ -1544,7 +1544,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/untag/{post_id}/{tag_id}": {
+        "/post/untag/{post_id}/{tag_id}": {
             "post": {
                 "security": [
                     {
