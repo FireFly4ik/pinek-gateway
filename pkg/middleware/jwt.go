@@ -51,7 +51,9 @@ func JWTAccessMiddleware(rsaPubKey *rsa.PublicKey, metrics *Metrics) gin.Handler
 			c.Abort()
 			return
 		}
-		jwtToken = jwtToken[len("Bearer "):]
+		if len(jwtToken) > 7 && jwtToken[:7] == "Bearer " {
+			jwtToken = jwtToken[len("Bearer "):]
+		}
 
 		token, err := jwt.ParseWithClaims(jwtToken, &AccessClaims{}, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
