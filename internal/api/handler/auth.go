@@ -93,6 +93,11 @@ func (h *Handler) Login(c *gin.Context) {
 
 	grpcConn.Close()
 
+	if message == "Invalid credentials" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
 	resp := models.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -139,6 +144,11 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 
 	grpcConn.Close()
+
+	if message == "Invalid credentials" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
 
 	resp := models.AuthResponse{
 		AccessToken:  accessToken,
