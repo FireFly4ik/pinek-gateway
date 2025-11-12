@@ -46,6 +46,11 @@ func (h *Handler) Register(c *gin.Context) {
 
 	grpcConn.Close()
 
+	if message == "User already exists" {
+		c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
+		return
+	}
+
 	resp := models.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
